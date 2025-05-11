@@ -1,9 +1,15 @@
 // Bağımlılıkları yükle
-const TelegramBot = require('node-telegram-bot-api');
-const express = require('express');
-const axios = require('axios');
-const franc = require('franc'); // Dil tespiti için
-require('dotenv').config();
+try {
+  require('dotenv').config();
+  const TelegramBot = require('node-telegram-bot-api');
+  const express = require('express');
+  const axios = require('axios');
+  const franc = require('franc');
+  console.log('Bağımlılıklar yüklendi.');
+} catch (error) {
+  console.error('Bağımlılık yükleme hatası:', error.message);
+  process.exit(1);
+}
 
 // Express ve bot ayarları
 const app = express();
@@ -18,22 +24,28 @@ const bot = new TelegramBot(token);
 
 // Bot kimliğini önbelleğe al
 let botId = null;
-bot.getMe().then((botInfo) => {
-  botId = botInfo.id;
-  console.log(`Bot kimliği alındı: ${botId}`);
-}).catch((error) => {
-  console.error('Bot kimliği alınamadı:', error.message);
-});
+bot.getMe()
+  .then((botInfo) => {
+    botId = botInfo.id;
+    console.log(`Bot kimliği alındı: ${botId}`);
+  })
+  .catch((error) => {
+    console.error('Bot kimliği alınamadı:', error.message);
+    process.exit(1);
+  });
 
 // Heroku app URL'si ve webhook ayarı
-const HEROKU_APP_NAME = process.env.HEROKU_APP_NAME || 'solium-grok-bot-741701423e96'; // Fallback
+const HEROKU_APP_NAME = process.env.HEROKU_APP_NAME || 'solium-grok-bot-741701423e96';
 const webhookUrl = `https://${HEROKU_APP_NAME}.herokuapp.com/bot${token}`;
 console.log(`Webhook URL’si: ${webhookUrl}`);
-bot.setWebHook(webhookUrl).then(() => {
-  console.log(`Webhook başarıyla ayarlandı: ${webhookUrl}`);
-}).catch((error) => {
-  console.error('Webhook ayarlanamadı:', error.message);
-});
+bot.setWebHook(webhookUrl)
+  .then(() => {
+    console.log(`Webhook başarıyla ayarlandı: ${webhookUrl}`);
+  })
+  .catch((error) => {
+    console.error('Webhook ayarlanamadı:', error.message);
+    process.exit(1);
+  });
 
 // Content - İngilizce, otomatik paylaşımlar için uygun
 const content = `
@@ -124,7 +136,7 @@ const casualResponses = {
     'Yo, what’s on your mind? Solium Coin’s got all the halal finance vibes! 🚀',
   ],
   tr: [
-    'Kanka, nhaber! 😎 Solium Coin’le helal finans devrimine hazır mısın? Sor bakalım!',
+    'Kanka, naber! 😎 Solium Coin’le helal finans devrimine hazır mısın? Sor bakalım!',
     'İyiyim kanka, sen nasılsın? 😄 Presale’e bi göz attın mı, fırsat kaçmaz!',
     'Hadi kanka, ne sorcan? Solium Coin’in helal finans dünyasında her şey bende! 🚀',
   ],
@@ -138,46 +150,54 @@ const casualResponses = {
 // Dil tespit fonksiyonu (franc ile)
 function detectLanguage(text) {
   if (!text) return 'en';
-  const langCode = franc(text, { minLength: 2, whitelist: ['eng', 'tur', 'ara'] });
-  switch (langCode) {
-    case 'tur': return 'tr';
-    case 'ara': return 'ar';
-    default: return 'en';
+  try {
+    const langCode = franc(text, { minLength: 2, whitelist: ['eng', 'tur', 'ara'] });
+    switch (langCode) {
+      case 'tur': return 'tr';
+      case 'ara': return 'ar';
+      default: return 'en';
+    }
+  } catch (error) {
+    console.error('Dil tespit hatası:', error.message);
+    return 'en';
   }
 }
 
 // Content’i prompt’a göre seçme (fallback)
 function selectContentByContext(prompt, language = 'en') {
   console.log(`Content seçiliyor, prompt: ${prompt}, dil: ${language}`);
-  // Genel sorular için samimi yanıt
-  if (prompt.toLowerCase().includes('naber') || 
-      prompt.toLowerCase().includes('nasılsın') || 
-      prompt.toLowerCase().includes('iyi misin') || 
-      prompt.toLowerCase().includes('ne haber') ||
-      prompt.toLowerCase().includes('what\'s up') || 
-      prompt.toLowerCase().includes('how are you') ||
-      prompt.toLowerCase().includes('مرحبا') || 
-      prompt.toLowerCase().includes('كيف حالك')) {
-    const responses = casualResponses[language] || casualResponses.en;
-    const casual = responses[Math.floor(Math.random() * responses.length)];
-    console.log(`Samimi yanıt seçildi: ${casual}`);
-    return casual;
-  }
+  try {
+    if (prompt.toLowerCase().includes('naber') || 
+        prompt.toLowerCase().includes('nasılsın') || 
+        prompt.toLowerCase().includes('iyi misin') || 
+        prompt.toLowerCase().includes('ne haber') ||
+        prompt.toLowerCase().includes('what\'s up') || 
+        prompt.toLowerCase().includes('how are you') ||
+        prompt.toLowerCase().includes('مرحبا') || 
+        prompt.toLowerCase().includes('كيف حالك')) {
+      const responses = casualResponses[language] || casualResponses.en;
+      const casual = responses[Math.floor(Math.random() * responses.length)];
+      console.log(`Samimi yanıt seçildi: ${casual}`);
+      return casual;
+    }
 
-  // Anahtar kelimelere göre satır seçimi
-  const lines = content.split('\n').filter(line => line.trim() !== '');
-  const relevantLines = lines.filter(line => 
-    (prompt.toLowerCase().includes('presale') && line.toLowerCase().includes('presale')) ||
-    (prompt.toLowerCase().includes('halal') && line.toLowerCase().includes('halal')) ||
-    (prompt.toLowerCase().includes('ethical') && line.toLowerCase().includes('ethical')) ||
-    (prompt.toLowerCase().includes('dubai') && line.toLowerCase().includes('dubai')) ||
-    (prompt.toLowerCase().includes('info') && line.toLowerCase().includes('solium coin'))
-  );
-  const selected = relevantLines.length > 0 
-    ? relevantLines[Math.floor(Math.random() * relevantLines.length)]
-    : 'Join Solium Coin’s halal finance revolution! 😎 More info: https://soliumcoin.com';
-  console.log(`Seçilen content: ${selected}`);
-  return selected;
+    const lines = content.split('\n').filter(line => line.trim() !== '');
+    const relevantLines = lines.filter(line => 
+      (prompt.toLowerCase().includes('presale') && line.toLowerCase().includes('presale')) ||
+      (prompt.toLowerCase().includes('halal') && line.toLowerCase().includes('halal')) ||
+      (prompt.toLowerCase().includes('ethical') && line.toLowerCase().includes('ethical')) ||
+      (prompt.toLowerCase().includes('dubai') && line.toLowerCase().includes('dubai')) ||
+      (prompt.toLowerCase().includes('info') && line.toLowerCase().includes('solium coin'))
+    );
+    const selected = relevantLines.length > 0 
+      ? relevantLines[Math.floor(Math.random() * relevantLines.length)]
+      : 'Join Solium Coin’s halal finance revolution! 😎 More info: https://soliumcoin.com';
+    console.log(`Seçilen content: ${selected}`);
+    return selected;
+  } catch (error) {
+    console.error('selectContentByContext hatası:', error.message);
+    return 'Join Solium Coin’s halal finance revolution! 😎 More info: https://soliumcoin.com';
+  }
 }
 
 // Grok API'den içerik alma
@@ -191,7 +211,6 @@ async function getGrokContent(prompt, language = 'en') {
     const systemPrompt = `
 You are Solium Coin’s friendly and informative assistant. Use the provided content as a knowledge base to answer user questions naturally, emphasizing halal finance. Detect the user’s language from the prompt and respond only in that language after the first English response. Ensure proper grammar, punctuation, and tone (friendly and engaging). For Turkish, follow Turkish spelling and grammar rules (correct capitalization, punctuation). Add #SoliumCoin and #HalalFinance. Do not respond in multiple languages. Content:\n\n${content}
 `;
-    
     const response = await axios.post(
       'https://api.x.ai/v1/chat/completions',
       { 
@@ -200,7 +219,7 @@ You are Solium Coin’s friendly and informative assistant. Use the provided con
           { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt }
         ],
-        max_tokens: 150, // Kısa ve öz yanıtlar
+        max_tokens: 150,
         temperature: 0.7
       },
       { headers: { Authorization: `Bearer ${process.env.GROK_API_KEY}` } }
@@ -219,6 +238,7 @@ You are Solium Coin’s friendly and informative assistant. Use the provided con
 }
 
 // 3 saatte bir otomatik paylaşım (İngilizce)
+const targetChat = '@soliumcoin'; // Grup için '@soliumcoinchat' yap veya chat ID kullan
 setInterval(async () => {
   try {
     console.log('Otomatik paylaşım başlıyor...');
@@ -235,25 +255,31 @@ setInterval(async () => {
     }
     if (message.length > 4096) {
       console.warn('Mesaj çok uzun, kısaltılıyor.');
-      await bot.sendMessage('@soliumcoin', message.substring(0, 4090) + '...');
+      await bot.sendMessage(targetChat, message.substring(0, 4090) + '...');
     } else {
-      await bot.sendMessage('@soliumcoin', message);
+      await bot.sendMessage(targetChat, message);
     }
     console.log('Paylaşım yapıldı:', message);
   } catch (error) {
     console.error('Paylaşım hatası:', error.message);
   }
-}, 3 * 60 * 60 * 1000); // 3 saat (10800000 ms)
+}, 3 * 60 * 60 * 1000); // 3 saat
 
 // Webhook endpoint
 app.post(`/bot${token}`, (req, res) => {
   console.log('Webhook isteği alındı:', JSON.stringify(req.body));
-  bot.processUpdate(req.body);
-  res.sendStatus(200);
+  try {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+  } catch (error) {
+    console.error('Webhook işleme hatası:', error.message);
+    res.sendStatus(500);
+  }
 });
 
 // Kök route (H81 hatalarını azaltmak için)
 app.get('/', (req, res) => {
+  console.log('Kök route çağrıldı.');
   res.send('Solium Moon Bot çalışıyor!');
 });
 
@@ -281,24 +307,19 @@ bot.onText(/\/help/, (msg) => {
 // Alıntı mesajla Grok’u tetikleme
 bot.on('message', async (msg) => {
   console.log(`Mesaj alındı: chatId: ${msg.chat.id}, chatType: ${msg.chat.type}, text: ${msg.text}, from: ${msg.from.id}`);
-  const chatId = msg.chat.id;
-
-  // Botun kendi mesajlarını ve komutları yoksay
-  if (!botId) {
-    console.error('Bot kimliği henüz alınmadı, mesaj işlenemiyor.');
-    return;
-  }
-  if (msg.from.id === botId || msg.text?.startsWith('/')) {
-    console.log('Botun kendi mesajı veya komut, yoksayılıyor.');
-    return;
-  }
-
-  // Alıntı mesaj varsa ve botun mesajına yanıt ise
-  if (msg.reply_to_message && msg.reply_to_message.from.id === botId) {
-    console.log('Alıntı mesaj tespit edildi:', JSON.stringify(msg.reply_to_message));
-    const userQuestion = msg.text || 'What’s up?';
-    const language = detectLanguage(userQuestion);
-    try {
+  try {
+    if (!botId) {
+      console.error('Bot kimliği henüz alınmadı, mesaj işlenemiyor.');
+      return;
+    }
+    if (msg.from.id === botId || msg.text?.startsWith('/')) {
+      console.log('Botun kendi mesajı veya komut, yoksayılıyor.');
+      return;
+    }
+    if (msg.reply_to_message && msg.reply_to_message.from.id === botId) {
+      console.log('Alıntı mesaj tespit edildi:', JSON.stringify(msg.reply_to_message));
+      const userQuestion = msg.text || 'What’s up?';
+      const language = detectLanguage(userQuestion);
       const grokResponse = await getGrokContent(
         `User asked: "${userQuestion}". Provide a friendly, Solium Coin-focused answer in the user’s language (detected as ${language}). First response in English if it’s the user’s first interaction.`,
         language
@@ -306,20 +327,21 @@ bot.on('message', async (msg) => {
       const reply = `${grokResponse} 😎\n#SoliumCoin #HalalFinance`;
       if (reply.length > 4096) {
         console.warn('Yanıt çok uzun, kısaltılıyor.');
-        await bot.sendMessage(chatId, reply.substring(0, 4090) + '...', { reply_to_message_id: msg.message_id });
+        await bot.sendMessage(msg.chat.id, reply.substring(0, 4090) + '...', { reply_to_message_id: msg.message_id });
       } else {
-        await bot.sendMessage(chatId, reply, { reply_to_message_id: msg.message_id });
+        await bot.sendMessage(msg.chat.id, reply, { reply_to_message_id: msg.message_id });
       }
       console.log(`Grok cevabı gönderildi: ${reply}`);
-    } catch (error) {
-      console.error('Grok tetikleme hatası:', error.message);
-      const errorMsg = language === 'tr' ? 'Ups, bir şeyler yanlış gitti! 😅 Tekrar dene.' :
-                       language === 'ar' ? 'عذرًا، حدث خطأ ما! 😅 حاول مجددًا.' :
-                       'Oops, something went wrong! 😅 Try again.';
-      await bot.sendMessage(chatId, errorMsg, { reply_to_message_id: msg.message_id });
+    } else {
+      console.log('Alıntı mesaj değil veya botun mesajına yanıt değil.');
     }
-  } else {
-    console.log('Alıntı mesaj değil veya botun mesajına yanıt değil.');
+  } catch (error) {
+    console.error('Mesaj işleme hatası:', error.message);
+    const language = detectLanguage(msg.text);
+    const errorMsg = language === 'tr' ? 'Ups, bir şeyler yanlış gitti! 😅 Tekrar dene.' :
+                     language === 'ar' ? 'عذرًا، حدث خطأ ما! 😅 حاول مجددًا.' :
+                     'Oops, something went wrong! 😅 Try again.';
+    await bot.sendMessage(msg.chat.id, errorMsg, { reply_to_message_id: msg.message_id });
   }
 });
 
