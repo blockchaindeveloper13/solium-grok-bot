@@ -2,6 +2,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
 const axios = require('axios');
+const franc = require('franc'); // Dil tespiti için
 require('dotenv').config();
 
 // Express ve bot ayarları
@@ -123,7 +124,7 @@ const casualResponses = {
     'Yo, what’s on your mind? Solium Coin’s got all the halal finance vibes! 🚀',
   ],
   tr: [
-    'Kanka, naber! 😎 Solium Coin’le helal finans devrimine hazır mısın? Sor bakalım!',
+    'Kanka, nhaber! 😎 Solium Coin’le helal finans devrimine hazır mısın? Sor bakalım!',
     'İyiyim kanka, sen nasılsın? 😄 Presale’e bi göz attın mı, fırsat kaçmaz!',
     'Hadi kanka, ne sorcan? Solium Coin’in helal finans dünyasında her şey bende! 🚀',
   ],
@@ -134,13 +135,15 @@ const casualResponses = {
   ],
 };
 
-// Dil tespit fonksiyonu (basit, Grok’a bırakacağız)
+// Dil tespit fonksiyonu (franc ile)
 function detectLanguage(text) {
   if (!text) return 'en';
-  text = text.toLowerCase();
-  if (/[ğşçıöü]/.test(text)) return 'tr';
-  if (/[اأإبتثجحخدذرزسشصضطظعغفقكلمنهويةى]/.test(text)) return 'ar';
-  return 'en'; // Varsayılan İngilizce
+  const langCode = franc(text, { minLength: 2, whitelist: ['eng', 'tur', 'ara'] });
+  switch (langCode) {
+    case 'tur': return 'tr';
+    case 'ara': return 'ar';
+    default: return 'en';
+  }
 }
 
 // Content’i prompt’a göre seçme (fallback)
@@ -185,13 +188,9 @@ async function getGrokContent(prompt, language = 'en') {
       console.warn('GROK_API_KEY eksik, content’ten seçim yapılıyor.');
       return selectContentByContext(prompt, language);
     }
-    const systemPrompt = language === 'en' ? 
-      `You are Solium Coin’s friendly and informative assistant. Use the provided content as a knowledge base to answer user questions in a natural, engaging tone, emphasizing halal finance. Detect the user’s language and respond in that language after the first English response. Ensure proper grammar and punctuation. Add #SoliumCoin. Content:\n\n${content}` :
-      language === 'tr' ? 
-      `Sen Solium Coin’in samimi ve bilgilendirici asistanısın. Sağlanan içeriği bilgi tabanı olarak kullan, kullanıcı sorularına doğal, ilgi çekici bir tonda, helal finans vurgusu yaparak cevap ver. Kullanıcının dilini tespit et, ilk yanıtı İngilizce ver, sonra kullanıcının dilinde devam et. Türkçe için yazım kurallarına uy (doğru noktalama, büyük-küçük harf). #SoliumCoin ekle. İçerik:\n\n${content}` :
-      language === 'ar' ? 
-      `أنت مساعد Solium Coin الودود والمفيد. استخدم المحتوى المقدم كقاعدة معرفية للإجابة على أسئلة المستخدم بأسلوب طبيعي وجذاب، مع التأكيد على التمويل الحلال. اكتشف لغة المستخدم وأجب بلغته بعد الرد الأول بالإنجليزية. تأكد من القواعد النحوية والترقيم الصحيح. أضف #SoliumCoin. المحتوى:\n\n${content}` :
-      `You are Solium Coin’s friendly and informative assistant. Use the provided content as a knowledge base to answer user questions in a natural, engaging tone, emphasizing halal finance. Detect the user’s language and respond in that language after the first English response. Ensure proper grammar and punctuation. Add #SoliumCoin. Content:\n\n${content}`;
+    const systemPrompt = `
+You are Solium Coin’s friendly and informative assistant. Use the provided content as a knowledge base to answer user questions naturally, emphasizing halal finance. Detect the user’s language from the prompt and respond only in that language after the first English response. Ensure proper grammar, punctuation, and tone (friendly and engaging). For Turkish, follow Turkish spelling and grammar rules (correct capitalization, punctuation). Add #SoliumCoin and #HalalFinance. Do not respond in multiple languages. Content:\n\n${content}
+`;
     
     const response = await axios.post(
       'https://api.x.ai/v1/chat/completions',
@@ -223,11 +222,17 @@ async function getGrokContent(prompt, language = 'en') {
 setInterval(async () => {
   try {
     console.log('Otomatik paylaşım başlıyor...');
-    const content = await getGrokContent(
-      'Write a short, compelling Telegram post praising Solium Coin, emphasizing its halal finance vision and encouraging investment. Use an enthusiastic tone and English only.',
-      'en'
-    );
-    const message = `${content} 🚀 #SoliumCoin #HalalFinance\nMore info: https://soliumcoin.com`;
+    let message;
+    try {
+      const content = await getGrokContent(
+        'Write a short, compelling Telegram post praising Solium Coin, emphasizing its halal finance vision and encouraging investment. Use an enthusiastic tone and English only.',
+        'en'
+      );
+      message = `${content} 🚀 #SoliumCoin #HalalFinance\nMore info: https://soliumcoin.com`;
+    } catch (error) {
+      console.warn('Grok API paylaşım hatası, fallback kullanılıyor:', error.message);
+      message = 'Solium Coin is revolutionizing halal finance with transparency and community power! 🌙 Join the presale now at https://soliumcoin.com 🚀 #SoliumCoin #HalalFinance';
+    }
     if (message.length > 4096) {
       console.warn('Mesaj çok uzun, kısaltılıyor.');
       await bot.sendMessage('@soliumcoin', message.substring(0, 4090) + '...');
@@ -308,9 +313,10 @@ bot.on('message', async (msg) => {
       console.log(`Grok cevabı gönderildi: ${reply}`);
     } catch (error) {
       console.error('Grok tetikleme hatası:', error.message);
-      await bot.sendMessage(chatId, language === 'tr' ? 'Ups, bir şeyler yanlış gitti! 😅 Tekrar dene.' :
-        language === 'ar' ? 'عذرًا، حدث خطأ ما! 😅 حاول مجددًا.' :
-        'Oops, something went wrong! 😅 Try again.', { reply_to_message_id: msg.message_id });
+      const errorMsg = language === 'tr' ? 'Ups, bir şeyler yanlış gitti! 😅 Tekrar dene.' :
+                       language === 'ar' ? 'عذرًا، حدث خطأ ما! 😅 حاول مجددًا.' :
+                       'Oops, something went wrong! 😅 Try again.';
+      await bot.sendMessage(chatId, errorMsg, { reply_to_message_id: msg.message_id });
     }
   } else {
     console.log('Alıntı mesaj değil veya botun mesajına yanıt değil.');
