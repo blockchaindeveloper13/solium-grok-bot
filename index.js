@@ -1,17 +1,41 @@
 // Uygulama başlatılıyor
 console.log('Application starting...');
 
+// Bağımlılıkları ayrı ayrı yükle
+let dotenv, TelegramBot, express, axios, franc;
 try {
-  // Bağımlılıkları yükle
-  require('dotenv').config();
+  dotenv = require('dotenv').config();
   console.log('dotenv yüklendi.');
-  const TelegramBot = require('node-telegram-bot-api');
-  const express = require('express');
-  const axios = require('axios');
-  const franc = require('franc');
-  console.log('Bağımlılıklar yüklendi: node-telegram-bot-api, express, axios, franc.');
 } catch (error) {
-  console.error('Bağımlılık yükleme hatası:', error.message, error.stack);
+  console.error('dotenv yükleme hatası:', error.message, error.stack);
+  process.exit(1);
+}
+try {
+  TelegramBot = require('node-telegram-bot-api');
+  console.log('node-telegram-bot-api yüklendi.');
+} catch (error) {
+  console.error('node-telegram-bot-api yükleme hatası:', error.message, error.stack);
+  process.exit(1);
+}
+try {
+  express = require('express');
+  console.log('express yüklendi.');
+} catch (error) {
+  console.error('express yükleme hatası:', error.message, error.stack);
+  process.exit(1);
+}
+try {
+  axios = require('axios');
+  console.log('axios yüklendi.');
+} catch (error) {
+  console.error('axios yükleme hatası:', error.message, error.stack);
+  process.exit(1);
+}
+try {
+  franc = require('franc');
+  console.log('franc yüklendi.');
+} catch (error) {
+  console.error('franc yükleme hatası:', error.message, error.stack);
   process.exit(1);
 }
 
@@ -303,9 +327,7 @@ app.get('/', (req, res) => {
 
 // Komut: /start
 bot.onText(/\/start/, (msg) => {
-  console.log(`Komut alınd
-
-ı: /start, chatId: ${msg.chat.id}, chatType: ${msg.chat.type}`);
+  console.log(`Komut alındı: /start, chatId: ${msg.chat.id}, chatType: ${msg.chat.type}`);
   try {
     const chatId = msg.chat.id;
     bot.sendMessage(chatId, 'Welcome to Solium Moon Bot! 🌙\nJoin the halal finance revolution with Solium Coin!\nType /help for commands.');
