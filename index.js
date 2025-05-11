@@ -34,15 +34,15 @@ bot.setWebHook(webhookUrl).then(() => {
   console.error('Webhook ayarlanamadı:', error.message);
 });
 
-// Tek content - Tüm bilgiler burada
+// Content - İngilizce, otomatik paylaşımlar için uygun
 const content = `
-Solium Coin (SLM) ile helal finans devrimine katıl! 🌙
-Proje: Solium Coin
+Join the halal finance revolution with Solium Coin (SLM)! 🌙
+Project: Solium Coin
 Website: https://soliumcoin.com
-Toplam Arz: 100,000,000 SLM
+Total Supply: 100,000,000 SLM
 Presale: 50,000,000 SLM (50%)
 Airdrop: 10,000,000 SLM (10%)
-Blockchain: Binance Smart Chain (BSC) ve Solana
+Blockchain: Binance Smart Chain (BSC) and Solana
 BSC Contract Address: 0x307a0dc0814CbD64E81a9BC8517441Ca657fB9c7
 Solana Contract Address: 9rFLChxL7444pp1ykat7eoaFh76BiLEZNXUvn9Fpump
 
@@ -53,85 +53,110 @@ Tokenomics:
 - Staking: 10M SLM (10%)
 - GameFi & Rewards: 10M SLM (10%)
 
-Özellikler:
-- %100 Adil Lansman: Takım token’ı yok, dev ücreti yok, özel satış yok.
-- Web3 Değerleri: Şeffaflık, merkeziyetsizlik, topluluk odaklı.
-- Staking, DAO yönetimi, GameFi genişlemesi ve çapraz zincir köprüsü planlanıyor.
-- ABD, Kanada veya OFAC yaptırımlı ülke vatandaşlarına açık değil.
+Features:
+- 100% Fair Launch: No team tokens, no dev fees, no private sale.
+- Web3 Values: Transparency, decentralization, community-driven.
+- Staking, DAO governance, GameFi expansion, and cross-chain bridge planned.
+- Not available to residents of the USA, Canada, or OFAC-sanctioned countries.
 
 Roadmap:
-Q1 – Lansman & Presale
-- Token oluşturuldu, akıllı kontrat deploy edildi (Tamamlandı)
-- Website, GitHub, Medium, Telegram, X başlatıldı (Tamamlandı)
-- Presale başladı (Tamamlandı)
-- İlk influencer iş birlikleri
-- Topluluk büyümesi
+Q1 – Launch & Presale
+- Token created, smart contract deployed (Completed)
+- Website, GitHub, Medium, Telegram, X launched (Completed)
+- Presale started (Completed)
+- First influencer collaborations
+- Community growth
 
-Q2 – Büyüme & Görünürlük
-- DEXTools, CoinGecko, CoinMarketCap listelenmeleri
-- İlk CEX listelenmesi (Hedef: MEXC veya Bitget)
-- Airdrop dağıtımı (10M SLM)
-- Topluluk katılımı ve staking Dapp entegrasyonu
+Q2 – Growth & Visibility
+- DEXTools, CoinGecko, CoinMarketCap listings
+- First CEX listing (Target: MEXC or Bitget)
+- Airdrop distribution (10M SLM)
+- Community engagement and staking Dapp integration
 
-Q3 – Genişleme
-- Staking lansmanı (10M SLM ayrıldı)
-- KuCoin & Binance listelenme hedefleri
-- GameFi konsepti tanıtımı
-- DAO geliştirme ve köprü araştırması
+Q3 – Expansion
+- Staking launch (10M SLM allocated)
+- KuCoin & Binance listing targets
+- GameFi concept introduction
+- DAO development and bridge research
 
-Q4 – Ekosistem Geliştirme
-- GameFi lansmanı, SLM kullanımı
-- Gerçek dünya entegrasyonları & uzun vadeli staking
-- Kullanım odaklı NFT koleksiyonu
-- Global pazarlama ve topluluk genişlemesi
+Q4 – Ecosystem Development
+- GameFi launch with SLM usage
+- Real-world integrations & long-term staking
+- Utility-driven NFT collection
+- Global marketing and community expansion
 
-Resmi Linkler:
+Official Links:
 - Website: https://soliumcoin.com
-- Telegram Grup: https://t.me/soliumcoinchat
-- Telegram Kanal: https://t.me/soliumcoin
+- Telegram Group: https://t.me/soliumcoinchat
+- Telegram Channel: https://t.me/soliumcoin
 - Twitter/X: https://x.com/soliumcoin
 - GitHub: https://github.com/soliumcoin/solium-project
 - Medium: https://medium.com/@soliumcoin
 
-Faydalar:
-- Hız: Binance Smart Chain ve Solana ile yıldırım hızında işlemler.
-- Güvenlik: Gelişmiş şifreleme protokolleri ile fonlar güvende.
-- Ölçeklenebilirlik: Yüksek işlem hacimlerini destekleyen sağlam platform.
-- Topluluk Odaklı: Projenin gelişimini şekillendiren tutkulu bir topluluk.
+Benefits:
+- Speed: Lightning-fast transactions with BSC and Solana.
+- Security: Advanced encryption protocols keep funds safe.
+- Scalability: Robust platform supporting high transaction volumes.
+- Community-Driven: A passionate community shaping the project.
 
-Şeffaflık ve Güvenlik:
-- Denetlenen Kontratlar: BSC Kontrat Adresi: 0x307a0dc0814CbD64E81a9BC8517441Ca657fB9c7
-- Açık Kaynak Kod: GitHub’da mevcut: https://github.com/soliumcoin/solium-project
-- Takım Token’ı Yok: Adil token dağıtımı.
+Transparency and Security:
+- Audited Contracts: BSC Contract Address: 0x307a0dc0814CbD64E81a9BC8517441Ca657fB9c7
+- Open Source Code: Available on GitHub: https://github.com/soliumcoin/solium-project
+- No Team Tokens: Fair token distribution.
 
-Airdrop ve Presale:
-- Airdrop: Telegram grubuna katıl (t.me/soliumcoinchat) ve BSC adresini paylaş. Her 7 günde 1M $SLM kazanma şansı!
-- Presale: https://soliumcoin.com adresinden MetaMask ile BNB kullanarak $SLM al (1 BNB = 10,000 $SLM). En iyi alıcılar için ödüller:
-  - 1.: 1M $SLM
-  - 2.: 500K $SLM
-  - 3.: 100K $SLM
-  - 4.-10.: Ek ödüller!
+Airdrop and Presale:
+- Airdrop: Join the Telegram group (t.me/soliumcoinchat) and share your BSC address. Chance to win 1M $SLM every 7 days!
+- Presale: Buy $SLM with BNB via MetaMask at https://soliumcoin.com (1 BNB = 10,000 $SLM). Rewards for top buyers:
+  - 1st: 1M $SLM
+  - 2nd: 500K $SLM
+  - 3rd: 100K $SLM
+  - 4th-10th: Additional rewards!
 
-Solium Coin, blockchain dünyasını devrimleştirmeyi hedefleyen çığır açan bir kripto projesi. Airdrop ve Presale’e katılarak geleceğin parçası ol. Daha fazla bilgi için: https://soliumcoin.com #SoliumCoin #HelalFinans
+Solium Coin is a groundbreaking crypto project aiming to revolutionize the blockchain world. Join the Airdrop and Presale to be part of the future. More info: https://soliumcoin.com #SoliumCoin #HalalFinance
 `;
 
-// Genel sorular için samimi fallback yanıtlar
-const casualResponses = [
-  'Kanka, naber! 😎 Solium Coin’le helal finans devrimine hazır mısın? Sor bakalım, ne konuşalım!',
-  'İyiyim kanka, sen nasılsın? 😄 Presale’e bi göz attın mı, fırsat kaçmaz ha!',
-  'Hadi kanka, ne sorcan? Solium Coin’in helal finans dünyasında her şey bende! 🚀',
-  'Kanka, keyfim yerinde! 😎 Solium Coin’le geleceği inşa ediyoruz, sen de gel! Ne dersin?',
-];
+// Çok dilli samimi yanıtlar
+const casualResponses = {
+  en: [
+    'Hey, what’s up! 😎 Ready to join the halal finance revolution with Solium Coin? Ask away!',
+    'I’m good, how about you? 😄 Checked out the Solium Coin presale yet? Don’t miss it!',
+    'Yo, what’s on your mind? Solium Coin’s got all the halal finance vibes! 🚀',
+  ],
+  tr: [
+    'Kanka, naber! 😎 Solium Coin’le helal finans devrimine hazır mısın? Sor bakalım!',
+    'İyiyim kanka, sen nasılsın? 😄 Presale’e bi göz attın mı, fırsat kaçmaz!',
+    'Hadi kanka, ne sorcan? Solium Coin’in helal finans dünyasında her şey bende! 🚀',
+  ],
+  ar: [
+    'مرحبًا، كيف حالك؟ 😎 هل أنت جاهز لثورة التمويل الحلال مع Solium Coin؟ اسألني!',
+    'أنا بخير، وأنت؟ 😄 هل اطلعت على بيع Solium Coin المسبق؟ لا تفوتها!',
+    'هيا، ما الذي تريد معرفته؟ Solium Coin هو عالم التمويل الحلال! 🚀',
+  ],
+};
 
-// Content’i prompt’a göre seçme
-function selectContentByContext(prompt) {
-  console.log(`Content seçiliyor, prompt: ${prompt}`);
+// Dil tespit fonksiyonu (basit, Grok’a bırakacağız)
+function detectLanguage(text) {
+  if (!text) return 'en';
+  text = text.toLowerCase();
+  if (/[ğşçıöü]/.test(text)) return 'tr';
+  if (/[اأإبتثجحخدذرزسشصضطظعغفقكلمنهويةى]/.test(text)) return 'ar';
+  return 'en'; // Varsayılan İngilizce
+}
+
+// Content’i prompt’a göre seçme (fallback)
+function selectContentByContext(prompt, language = 'en') {
+  console.log(`Content seçiliyor, prompt: ${prompt}, dil: ${language}`);
   // Genel sorular için samimi yanıt
   if (prompt.toLowerCase().includes('naber') || 
       prompt.toLowerCase().includes('nasılsın') || 
       prompt.toLowerCase().includes('iyi misin') || 
-      prompt.toLowerCase().includes('ne haber')) {
-    const casual = casualResponses[Math.floor(Math.random() * casualResponses.length)];
+      prompt.toLowerCase().includes('ne haber') ||
+      prompt.toLowerCase().includes('what\'s up') || 
+      prompt.toLowerCase().includes('how are you') ||
+      prompt.toLowerCase().includes('مرحبا') || 
+      prompt.toLowerCase().includes('كيف حالك')) {
+    const responses = casualResponses[language] || casualResponses.en;
+    const casual = responses[Math.floor(Math.random() * responses.length)];
     console.log(`Samimi yanıt seçildi: ${casual}`);
     return casual;
   }
@@ -140,64 +165,69 @@ function selectContentByContext(prompt) {
   const lines = content.split('\n').filter(line => line.trim() !== '');
   const relevantLines = lines.filter(line => 
     (prompt.toLowerCase().includes('presale') && line.toLowerCase().includes('presale')) ||
-    (prompt.toLowerCase().includes('helal') && line.toLowerCase().includes('helal')) ||
-    (prompt.toLowerCase().includes('etik') && line.toLowerCase().includes('etik')) ||
+    (prompt.toLowerCase().includes('halal') && line.toLowerCase().includes('halal')) ||
+    (prompt.toLowerCase().includes('ethical') && line.toLowerCase().includes('ethical')) ||
     (prompt.toLowerCase().includes('dubai') && line.toLowerCase().includes('dubai')) ||
-    (prompt.toLowerCase().includes('bilgi') && line.toLowerCase().includes('solium coin'))
+    (prompt.toLowerCase().includes('info') && line.toLowerCase().includes('solium coin'))
   );
   const selected = relevantLines.length > 0 
     ? relevantLines[Math.floor(Math.random() * relevantLines.length)]
-    : 'Kanka, Solium Coin’le helal finans devrimine katıl! 😎 Daha fazla bilgi için: https://soliumcoin.com';
+    : 'Join Solium Coin’s halal finance revolution! 😎 More info: https://soliumcoin.com';
   console.log(`Seçilen content: ${selected}`);
   return selected;
 }
 
 // Grok API'den içerik alma
-async function getGrokContent(prompt, contextType = 'general') {
-  console.log(`Grok API çağrılıyor, prompt: ${prompt}, context: ${contextType}`);
+async function getGrokContent(prompt, language = 'en') {
+  console.log(`Grok API çağrılıyor, prompt: ${prompt}, dil: ${language}`);
   try {
     if (!process.env.GROK_API_KEY) {
       console.warn('GROK_API_KEY eksik, content’ten seçim yapılıyor.');
-      return selectContentByContext(prompt);
+      return selectContentByContext(prompt, language);
     }
+    const systemPrompt = language === 'en' ? 
+      `You are Solium Coin’s friendly and informative assistant. Use the provided content as a knowledge base to answer user questions in a natural, engaging tone, emphasizing halal finance. Detect the user’s language and respond in that language after the first English response. Ensure proper grammar and punctuation. Add #SoliumCoin. Content:\n\n${content}` :
+      language === 'tr' ? 
+      `Sen Solium Coin’in samimi ve bilgilendirici asistanısın. Sağlanan içeriği bilgi tabanı olarak kullan, kullanıcı sorularına doğal, ilgi çekici bir tonda, helal finans vurgusu yaparak cevap ver. Kullanıcının dilini tespit et, ilk yanıtı İngilizce ver, sonra kullanıcının dilinde devam et. Türkçe için yazım kurallarına uy (doğru noktalama, büyük-küçük harf). #SoliumCoin ekle. İçerik:\n\n${content}` :
+      language === 'ar' ? 
+      `أنت مساعد Solium Coin الودود والمفيد. استخدم المحتوى المقدم كقاعدة معرفية للإجابة على أسئلة المستخدم بأسلوب طبيعي وجذاب، مع التأكيد على التمويل الحلال. اكتشف لغة المستخدم وأجب بلغته بعد الرد الأول بالإنجليزية. تأكد من القواعد النحوية والترقيم الصحيح. أضف #SoliumCoin. المحتوى:\n\n${content}` :
+      `You are Solium Coin’s friendly and informative assistant. Use the provided content as a knowledge base to answer user questions in a natural, engaging tone, emphasizing halal finance. Detect the user’s language and respond in that language after the first English response. Ensure proper grammar and punctuation. Add #SoliumCoin. Content:\n\n${content}`;
+    
     const response = await axios.post(
       'https://api.x.ai/v1/chat/completions',
       { 
         model: 'grok-beta',
         messages: [
-          {
-            role: 'system',
-            content: `Sen Solium Coin’in samimi ve bilgilendirici asistanısın. Kullanıcı sorularına aşağıdaki içeriği kullanarak, helal finans vurgusu yaparak, samimi ve doğal bir tonda cevap ver. #SoliumCoin ekle.\n\n${content}`
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt }
         ],
-        max_tokens: 200,
+        max_tokens: 150, // Kısa ve öz yanıtlar
         temperature: 0.7
       },
       { headers: { Authorization: `Bearer ${process.env.GROK_API_KEY}` } }
     );
-    const grokContent = response.data.choices[0].message.content;
+    const grokContent = response.data.choices[0].message.content.trim();
     if (!grokContent || grokContent.length < 10) {
       console.warn('Grok API içeriği geçersiz, content’ten seçim yapılıyor.');
-      return selectContentByContext(prompt);
+      return selectContentByContext(prompt, language);
     }
     console.log(`Grok API cevabı: ${grokContent}`);
     return grokContent;
   } catch (error) {
     console.error('Grok API hatası:', error.message);
-    return selectContentByContext(prompt);
+    return selectContentByContext(prompt, language);
   }
 }
 
-// 3 saatte bir otomatik paylaşım
+// 3 saatte bir otomatik paylaşım (İngilizce)
 setInterval(async () => {
   try {
     console.log('Otomatik paylaşım başlıyor...');
-    const content = await getGrokContent('Solium Coin için kısa, çarpıcı bir Telegram gönderisi yaz.', 'presale');
-    const message = `${content} 🚀 #SoliumCoin #HelalFinans\nDetaylar: https://soliumcoin.com`;
+    const content = await getGrokContent(
+      'Write a short, compelling Telegram post praising Solium Coin, emphasizing its halal finance vision and encouraging investment. Use an enthusiastic tone and English only.',
+      'en'
+    );
+    const message = `${content} 🚀 #SoliumCoin #HalalFinance\nMore info: https://soliumcoin.com`;
     if (message.length > 4096) {
       console.warn('Mesaj çok uzun, kısaltılıyor.');
       await bot.sendMessage('@soliumcoin', message.substring(0, 4090) + '...');
@@ -226,21 +256,21 @@ app.get('/', (req, res) => {
 bot.onText(/\/start/, (msg) => {
   console.log(`Komut alındı: /start, chatId: ${msg.chat.id}, chatType: ${msg.chat.type}`);
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'Kanka, Solium Moon Bot’a hoş geldin! 🌙\nSolium Coin’le helal finans devrimine katıl!\nKomutlar için /help yaz.');
+  bot.sendMessage(chatId, 'Welcome to Solium Moon Bot! 🌙\nJoin the halal finance revolution with Solium Coin!\nType /help for commands.');
 });
 
 // Komut: /presale
 bot.onText(/\/presale/, (msg) => {
   console.log(`Komut alındı: /presale, chatId: ${msg.chat.id}, chatType: ${msg.chat.type}`);
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'Solium Coin presale fırsatını kaçırma! 😎\nMetamask cüzdanını hazırla: https://soliumcoin.com');
+  bot.sendMessage(chatId, 'Don’t miss the Solium Coin presale! 😎\nPrepare your MetaMask: https://soliumcoin.com');
 });
 
 // Komut: /help
 bot.onText(/\/help/, (msg) => {
   console.log(`Komut alındı: /help, chatId: ${msg.chat.id}, chatType: ${msg.chat.type}`);
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'Solium Moon Bot komutları:\n/start - Başla\n/presale - Presale detayları\n/help - Bu mesaj\n\nBotun mesajlarını alıntılayarak Grok’a soru sorabilirsin! 🚀');
+  bot.sendMessage(chatId, 'Solium Moon Bot commands:\n/start - Get started\n/presale - Presale details\n/help - This message\n\nReply to my messages to ask about Solium Coin! 🚀');
 });
 
 // Alıntı mesajla Grok’u tetikleme
@@ -261,10 +291,14 @@ bot.on('message', async (msg) => {
   // Alıntı mesaj varsa ve botun mesajına yanıt ise
   if (msg.reply_to_message && msg.reply_to_message.from.id === botId) {
     console.log('Alıntı mesaj tespit edildi:', JSON.stringify(msg.reply_to_message));
-    const userQuestion = msg.text || 'Sorun ne kanka?';
+    const userQuestion = msg.text || 'What’s up?';
+    const language = detectLanguage(userQuestion);
     try {
-      const grokResponse = await getGrokContent(`Kullanıcı şunu sordu: "${userQuestion}". Solium Coin odaklı, samimi bir cevap ver.`, 'general');
-      const reply = `${grokResponse} 😎\n#SoliumCoin #HelalFinans`;
+      const grokResponse = await getGrokContent(
+        `User asked: "${userQuestion}". Provide a friendly, Solium Coin-focused answer in the user’s language (detected as ${language}). First response in English if it’s the user’s first interaction.`,
+        language
+      );
+      const reply = `${grokResponse} 😎\n#SoliumCoin #HalalFinance`;
       if (reply.length > 4096) {
         console.warn('Yanıt çok uzun, kısaltılıyor.');
         await bot.sendMessage(chatId, reply.substring(0, 4090) + '...', { reply_to_message_id: msg.message_id });
@@ -274,7 +308,9 @@ bot.on('message', async (msg) => {
       console.log(`Grok cevabı gönderildi: ${reply}`);
     } catch (error) {
       console.error('Grok tetikleme hatası:', error.message);
-      await bot.sendMessage(chatId, 'Ups, bir şeyler yanlış gitti! 😅 Tekrar dene.', { reply_to_message_id: msg.message_id });
+      await bot.sendMessage(chatId, language === 'tr' ? 'Ups, bir şeyler yanlış gitti! 😅 Tekrar dene.' :
+        language === 'ar' ? 'عذرًا، حدث خطأ ما! 😅 حاول مجددًا.' :
+        'Oops, something went wrong! 😅 Try again.', { reply_to_message_id: msg.message_id });
     }
   } else {
     console.log('Alıntı mesaj değil veya botun mesajına yanıt değil.');
