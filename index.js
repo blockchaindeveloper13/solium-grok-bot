@@ -264,7 +264,7 @@ bot.on('message', async (msg) => {
     const userQuestion = msg.text || 'Sorun ne kanka?';
     try {
       const grokResponse = await getGrokContent(`Kullanıcı şunu sordu: "${userQuestion}". Solium Coin odaklı, samimi bir cevap ver.`, 'general');
-      const reply = `Kanka, işte cevabın: ${grokResponse} 😎\n#SoliumCoin #HelalFinans`;
+      const reply = `${grokResponse} 😎\n#SoliumCoin #HelalFinans`;
       if (reply.length > 4096) {
         console.warn('Yanıt çok uzun, kısaltılıyor.');
         await bot.sendMessage(chatId, reply.substring(0, 4090) + '...', { reply_to_message_id: msg.message_id });
