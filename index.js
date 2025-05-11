@@ -12,40 +12,68 @@ const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token);
 
 // Heroku app URL'si ve webhook ayarı
-const webhookUrl = `https://${process.env.HEROKU_APP_NAME}.herokuapp.com/bot${token}`;
+const HEROKU_APP_NAME = process.env.HEROKU_APP_NAME || 'solium-grok-bot-741701423e96'; // Fallback
+const webhookUrl = `https://${HEROKU_APP_NAME}.herokuapp.com/bot${token}`;
 bot.setWebHook(webhookUrl).then(() => {
   console.log(`Webhook ayarlandı: ${webhookUrl}`);
+}).catch((error) => {
+  console.error('Webhook ayarlanamadı:', error.message);
 });
 
-// Ham içerik (content) - Geçici olarak kodda tutuyoruz
+// Ham içerik (content) - Kodda tutuyoruz
 const contentPool = [
-  'Solium Coin presale başlıyor! Helal finansla geleceği inşa ediyoruz.',
-  'Dubai’den dünyaya helal finans devrimi! Solium Coin’le tanış.',
-  'Etik yatırım mı arıyorsun? Solium Coin tam sana göre!',
-  'Presale fırsatını kaçırma! Solium Coin’le kazan.',
+  { text: 'Solium Coin presale başlıyor! Helal finansla geleceği inşa ediyoruz.', context: 'presale' },
+  { text: 'Dubai’den dünyaya helal finans devrimi! Solium Coin’le tanış.', context: 'intro' },
+  { text: 'Etik yatırım mı arıyorsun? Solium Coin tam sana göre!', context: 'ethics' },
+  { text: 'Presale fırsatını kaçırma! Solium Coin’le kazan.', context: 'presale' },
 ];
 
-// Grok API'den içerik alma (Placeholder)
-async function getGrokContent(prompt) {
+// Content’i kontekste göre seçme ve akıl yürütme
+function selectContentByContext(prompt, contextType) {
+  // Önce kontekste uygun içerikleri filtrele
+  const relevantContent = contentPool.filter(item => item.context === contextType);
+  // Eğer uygun içerik yoksa, genel bir içerik seç
+  const fallbackContent = contentPool[Math.floor(Math.random() * contentPool.length)].text;
+  
+  // Akıl yürütme: Prompt’a göre içeriği özelleştir
+  if (prompt.toLowerCase().includes('presale')) {
+    return relevantContent.find(item => item.context === 'presale')?.text || fallbackContent;
+  } else if (prompt.toLowerCase().includes('helal') || prompt.toLowerCase().includes('etik')) {
+    return relevantContent.find(item => item.context === 'ethics')?.text || fallbackContent;
+  } else if (prompt.toLowerCase().includes('dubai') || prompt.toLowerCase().includes('tanış')) {
+    return relevantContent.find(item => item.context === 'intro')?.text || fallbackContent;
+  }
+  return fallbackContent;
+}
+
+// Grok API'den içerik alma
+async function getGrokContent(prompt, contextType = 'general') {
   try {
-    // Gerçek API key'in olunca burayı güncelle
+    if (!process.env.GROK_API_KEY) {
+      console.warn('GROK_API_KEY eksik, contentPool’dan seçim yapılıyor.');
+      return selectContentByContext(prompt, contextType);
+    }
     const response = await axios.post(
       'https://api.x.ai/grok',
-      { prompt: prompt + ' Samimi bir tonda, helal finans vurgusu yap, #SoliumCoin ekle.' },
+      { prompt: `${prompt} Samimi bir tonda, helal finans vurgusu yap, #SoliumCoin ekle.` },
       { headers: { Authorization: `Bearer ${process.env.GROK_API_KEY}` } }
     );
-    return response.data.content || contentPool[Math.floor(Math.random() * contentPool.length)];
+    const content = response.data.content;
+    if (!content || content.length < 10) {
+      console.warn('Grok API içeriği geçersiz, contentPool’dan seçim yapılıyor.');
+      return selectContentByContext(prompt, contextType);
+    }
+    return content;
   } catch (error) {
     console.error('Grok API hatası:', error.message);
-    // Hata durumunda ham içerikten rastgele seç
-    return contentPool[Math.floor(Math.random() * contentPool.length)];
+    return selectContentByContext(prompt, contextType);
   }
 }
 
 // 3 saatte bir otomatik paylaşım
 setInterval(async () => {
   try {
-    const content = await getGrokContent('Solium Coin için kısa, çarpıcı bir Telegram gönderisi yaz.');
+    const content = await getGrokContent('Solium Coin için kısa, çarpıcı bir Telegram gönderisi yaz.', 'presale');
     const message = `${content} 🚀 #SoliumCoin #HelalFinans\nDetaylar: soliumcoin.com`;
     await bot.sendMessage('@soliumcoin', message); // Kanalda paylaş
     console.log('Paylaşım yapıldı:', message);
@@ -58,6 +86,11 @@ setInterval(async () => {
 app.post(`/bot${token}`, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
+});
+
+// Kök route (H81 hatalarını azaltmak için)
+app.get('/', (req, res) => {
+  res.send('Solium Moon Bot çalışıyor!');
 });
 
 // Komut: /start
@@ -88,7 +121,9 @@ bot.on('message', async (msg) => {
   if (msg.reply_to_message && msg.reply_to_message.from.id === (await bot.getMe()).id) {
     const userQuestion = msg.text || 'Sorun ne kanka?';
     try {
-      const grokResponse = await getGrokContent(`Kullanıcı şunu sordu: "${userQuestion}". Solium Coin odaklı, samimi bir cevap ver.`);
+      const contextType = userQuestion.toLowerCase().includes('presale') ? 'presale' : 
+                         userQuestion.toLowerCase().includes('helal') ? 'ethics' : 'general';
+      const grokResponse = await getGrokContent(`Kullanıcı şunu sordu: "${userQuestion}". Solium Coin odaklı, samimi bir cevap ver.`, contextType);
       const reply = `Kanka, işte cevabın: ${grokResponse} 😎\n#SoliumCoin #HelalFinans`;
       await bot.sendMessage(chatId, reply, { reply_to_message_id: msg.message_id });
       console.log(`Grok cevabı gönderildi: ${reply}`);
