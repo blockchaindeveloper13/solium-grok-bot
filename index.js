@@ -9,13 +9,27 @@ const app = express();
 app.use(express.json()); // Webhook için JSON isteklerini işle
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
+if (!token) {
+  console.error('HATA: TELEGRAM_BOT_TOKEN tanımlı değil!');
+  process.exit(1);
+}
 const bot = new TelegramBot(token);
+
+// Bot kimliğini önbelleğe al
+let botId = null;
+bot.getMe().then((botInfo) => {
+  botId = botInfo.id;
+  console.log(`Bot kimliği alındı: ${botId}`);
+}).catch((error) => {
+  console.error('Bot kimliği alınamadı:', error.message);
+});
 
 // Heroku app URL'si ve webhook ayarı
 const HEROKU_APP_NAME = process.env.HEROKU_APP_NAME || 'solium-grok-bot-741701423e96'; // Fallback
 const webhookUrl = `https://${HEROKU_APP_NAME}.herokuapp.com/bot${token}`;
+console.log(`Webhook URL’si: ${webhookUrl}`);
 bot.setWebHook(webhookUrl).then(() => {
-  console.log(`Webhook ayarlandı: ${webhookUrl}`);
+  console.log(`Webhook başarıyla ayarlandı: ${webhookUrl}`);
 }).catch((error) => {
   console.error('Webhook ayarlanamadı:', error.message);
 });
@@ -101,11 +115,29 @@ Airdrop ve Presale:
 Solium Coin, blockchain dünyasını devrimleştirmeyi hedefleyen çığır açan bir kripto projesi. Airdrop ve Presale’e katılarak geleceğin parçası ol. Daha fazla bilgi için: https://soliumcoin.com #SoliumCoin #HelalFinans
 `;
 
+// Genel sorular için samimi fallback yanıtlar
+const casualResponses = [
+  'Kanka, naber! 😎 Solium Coin’le helal finans devrimine hazır mısın? Sor bakalım, ne konuşalım!',
+  'İyiyim kanka, sen nasılsın? 😄 Presale’e bi göz attın mı, fırsat kaçmaz ha!',
+  'Hadi kanka, ne sorcan? Solium Coin’in helal finans dünyasında her şey bende! 🚀',
+  'Kanka, keyfim yerinde! 😎 Solium Coin’le geleceği inşa ediyoruz, sen de gel! Ne dersin?',
+];
+
 // Content’i prompt’a göre seçme
 function selectContentByContext(prompt) {
-  // Grok API hata verirse, content’ten rastgele bir parça seç
+  console.log(`Content seçiliyor, prompt: ${prompt}`);
+  // Genel sorular için samimi yanıt
+  if (prompt.toLowerCase().includes('naber') || 
+      prompt.toLowerCase().includes('nasılsın') || 
+      prompt.toLowerCase().includes('iyi misin') || 
+      prompt.toLowerCase().includes('ne haber')) {
+    const casual = casualResponses[Math.floor(Math.random() * casualResponses.length)];
+    console.log(`Samimi yanıt seçildi: ${casual}`);
+    return casual;
+  }
+
+  // Anahtar kelimelere göre satır seçimi
   const lines = content.split('\n').filter(line => line.trim() !== '');
-  // Prompt’a göre uygun satırları filtrele
   const relevantLines = lines.filter(line => 
     (prompt.toLowerCase().includes('presale') && line.toLowerCase().includes('presale')) ||
     (prompt.toLowerCase().includes('helal') && line.toLowerCase().includes('helal')) ||
@@ -113,30 +145,46 @@ function selectContentByContext(prompt) {
     (prompt.toLowerCase().includes('dubai') && line.toLowerCase().includes('dubai')) ||
     (prompt.toLowerCase().includes('bilgi') && line.toLowerCase().includes('solium coin'))
   );
-  return relevantLines.length > 0 
+  const selected = relevantLines.length > 0 
     ? relevantLines[Math.floor(Math.random() * relevantLines.length)]
-    : lines[Math.floor(Math.random() * lines.length)];
+    : 'Kanka, Solium Coin’le helal finans devrimine katıl! 😎 Daha fazla bilgi için: https://soliumcoin.com';
+  console.log(`Seçilen content: ${selected}`);
+  return selected;
 }
 
 // Grok API'den içerik alma
 async function getGrokContent(prompt, contextType = 'general') {
+  console.log(`Grok API çağrılıyor, prompt: ${prompt}, context: ${contextType}`);
   try {
     if (!process.env.GROK_API_KEY) {
       console.warn('GROK_API_KEY eksik, content’ten seçim yapılıyor.');
       return selectContentByContext(prompt);
     }
     const response = await axios.post(
-      'https://api.x.ai/grok',
+      'https://api.x.ai/v1/chat/completions',
       { 
-        prompt: `Aşağıdaki içeriği kullanarak, kullanıcının sorusuna samimi bir tonda, helal finans vurgusu yaparak cevap ver. #SoliumCoin ekle.\n\n${content}\n\nSoru: ${prompt}` 
+        model: 'grok-beta',
+        messages: [
+          {
+            role: 'system',
+            content: `Sen Solium Coin’in samimi ve bilgilendirici asistanısın. Kullanıcı sorularına aşağıdaki içeriği kullanarak, helal finans vurgusu yaparak, samimi ve doğal bir tonda cevap ver. #SoliumCoin ekle.\n\n${content}`
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 200,
+        temperature: 0.7
       },
       { headers: { Authorization: `Bearer ${process.env.GROK_API_KEY}` } }
     );
-    const grokContent = response.data.content;
+    const grokContent = response.data.choices[0].message.content;
     if (!grokContent || grokContent.length < 10) {
       console.warn('Grok API içeriği geçersiz, content’ten seçim yapılıyor.');
       return selectContentByContext(prompt);
     }
+    console.log(`Grok API cevabı: ${grokContent}`);
     return grokContent;
   } catch (error) {
     console.error('Grok API hatası:', error.message);
@@ -147,6 +195,7 @@ async function getGrokContent(prompt, contextType = 'general') {
 // 3 saatte bir otomatik paylaşım
 setInterval(async () => {
   try {
+    console.log('Otomatik paylaşım başlıyor...');
     const content = await getGrokContent('Solium Coin için kısa, çarpıcı bir Telegram gönderisi yaz.', 'presale');
     const message = `${content} 🚀 #SoliumCoin #HelalFinans\nDetaylar: https://soliumcoin.com`;
     if (message.length > 4096) {
@@ -163,6 +212,7 @@ setInterval(async () => {
 
 // Webhook endpoint
 app.post(`/bot${token}`, (req, res) => {
+  console.log('Webhook isteği alındı:', JSON.stringify(req.body));
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
@@ -174,35 +224,49 @@ app.get('/', (req, res) => {
 
 // Komut: /start
 bot.onText(/\/start/, (msg) => {
+  console.log(`Komut alındı: /start, chatId: ${msg.chat.id}, chatType: ${msg.chat.type}`);
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, 'Kanka, Solium Moon Bot’a hoş geldin! 🌙\nSolium Coin’le helal finans devrimine katıl!\nKomutlar için /help yaz.');
 });
 
 // Komut: /presale
 bot.onText(/\/presale/, (msg) => {
+  console.log(`Komut alındı: /presale, chatId: ${msg.chat.id}, chatType: ${msg.chat.type}`);
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, 'Solium Coin presale fırsatını kaçırma! 😎\nMetamask cüzdanını hazırla: https://soliumcoin.com');
 });
 
 // Komut: /help
 bot.onText(/\/help/, (msg) => {
+  console.log(`Komut alındı: /help, chatId: ${msg.chat.id}, chatType: ${msg.chat.type}`);
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, 'Solium Moon Bot komutları:\n/start - Başla\n/presale - Presale detayları\n/help - Bu mesaj\n\nBotun mesajlarını alıntılayarak Grok’a soru sorabilirsin! 🚀');
 });
 
 // Alıntı mesajla Grok’u tetikleme
 bot.on('message', async (msg) => {
+  console.log(`Mesaj alındı: chatId: ${msg.chat.id}, chatType: ${msg.chat.type}, text: ${msg.text}, from: ${msg.from.id}`);
   const chatId = msg.chat.id;
+
   // Botun kendi mesajlarını ve komutları yoksay
-  if (msg.from.id === bot.getMe().id || msg.text?.startsWith('/')) return;
+  if (!botId) {
+    console.error('Bot kimliği henüz alınmadı, mesaj işlenemiyor.');
+    return;
+  }
+  if (msg.from.id === botId || msg.text?.startsWith('/')) {
+    console.log('Botun kendi mesajı veya komut, yoksayılıyor.');
+    return;
+  }
 
   // Alıntı mesaj varsa ve botun mesajına yanıt ise
-  if (msg.reply_to_message && msg.reply_to_message.from.id === (await bot.getMe()).id) {
+  if (msg.reply_to_message && msg.reply_to_message.from.id === botId) {
+    console.log('Alıntı mesaj tespit edildi:', JSON.stringify(msg.reply_to_message));
     const userQuestion = msg.text || 'Sorun ne kanka?';
     try {
       const grokResponse = await getGrokContent(`Kullanıcı şunu sordu: "${userQuestion}". Solium Coin odaklı, samimi bir cevap ver.`, 'general');
       const reply = `Kanka, işte cevabın: ${grokResponse} 😎\n#SoliumCoin #HelalFinans`;
       if (reply.length > 4096) {
+        console.warn('Yanıt çok uzun, kısaltılıyor.');
         await bot.sendMessage(chatId, reply.substring(0, 4090) + '...', { reply_to_message_id: msg.message_id });
       } else {
         await bot.sendMessage(chatId, reply, { reply_to_message_id: msg.message_id });
@@ -212,6 +276,8 @@ bot.on('message', async (msg) => {
       console.error('Grok tetikleme hatası:', error.message);
       await bot.sendMessage(chatId, 'Ups, bir şeyler yanlış gitti! 😅 Tekrar dene.', { reply_to_message_id: msg.message_id });
     }
+  } else {
+    console.log('Alıntı mesaj değil veya botun mesajına yanıt değil.');
   }
 });
 
