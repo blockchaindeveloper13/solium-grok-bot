@@ -305,7 +305,7 @@ setInterval(async () => {
   } catch (error) {
     console.error('Paylaşım hatası:', error.message, error.stack);
   }
-}, 2 * 60 * 60 * 1000); // 2 saat
+}, 23 * 60 * 60 * 1000); // 23 saat
 
 // Webhook endpoint
 app.post(`/bot${token}`, (req, res) => {
